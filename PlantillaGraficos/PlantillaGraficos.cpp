@@ -16,7 +16,11 @@
 using namespace std;
 
 //Declarar una ventana
+
 GLFWwindow* window;
+
+float posXEstepicursor = -2.0f;
+
 float posXTriangulo = 0.0f , posYTriangulo = 0.0f;
 
 float posXCuadrado = 0.5f, posYCuadrado = 0.5f;
@@ -59,6 +63,51 @@ void teclado_callback(GLFWwindow* window,
 
 }
 
+void dibujarFondo() {
+	//piso
+	glBegin(GL_QUADS);
+
+	glColor3f(0.79f, 0.677f, 0.4819f);
+
+	glVertex3f(-1.0f, 0.12f, 0.0f);
+	glVertex3f(1.0f, 0.12f, 0.0f);
+	glVertex3f(1.0f, -1.0f, 0.0f);
+	glVertex3f(-1.0f, -1.0f, 0.0f);
+
+	glEnd();
+	//cactus
+	glBegin(GL_POLYGON);
+
+	glColor3f(0.1989, 0.52, 0.026);
+
+	glVertex3f(0.1, 0.0, 0.0);
+	glVertex3f(0.15, 0.0, 0.0);
+	glVertex3f(0.15, 0.2, 0.0);
+	glVertex3f(0.2, 0.2, 0.0);
+	glVertex3f(0.2, 0.35, 0.0);
+
+	glEnd();
+}
+
+void dibujarBolaDesierto() {
+	glPushMatrix();
+
+	glTranslatef(posXEstepicursor, 0.0, 0.0);
+
+	glBegin(GL_POLYGON);
+
+	glColor3f(1, 0.89, 0.7);
+	
+	for (double i = 1; i < 360; i += 5.0)
+	{
+		glVertex3f((0.2 * cos(i * 3.1416 / 180.0)), (0.2 * sin(i * 3.1416 / 180.0)), 0.0f);
+	}
+
+	glEnd();
+
+	glPopMatrix();
+}
+
 void checarColisiones() {
 	if (//La orilla derecha del triangulo es mayor que la orilla izquierda del cuadrado
 		posXTriangulo + 0.15f >= posXCuadrado - 0.15f &&
@@ -67,8 +116,7 @@ void checarColisiones() {
 		//la parte de arriba
 		posYTriangulo + 0.15f >= posYCuadrado - 0.15f &&
 		//la parte de abajo
-		posYTriangulo - 0.15f <= posYCuadrado + 0.15f
-		) {
+		posYTriangulo - 0.15f <= posYCuadrado + 0.15f) {
 		rojoTriangulo = 0.0f;
 		verdeTriangulo = 0.0f;
 		azulTriangulo = 0.0f;
@@ -83,7 +131,15 @@ void checarColisiones() {
 void actualizar() {
 	tiempoActual = glfwGetTime();
 
+	cout << tiempoActual<<"   ";
+
+	if (tiempoActual >= 2) {
+		posXEstepicursor += 0.0003f;
+	}
+	
+
 	checarColisiones();
+	
 
 	double tiempoDiferencial = 
 		tiempoActual - tiempoAnterior;
@@ -146,8 +202,9 @@ void dibujarCuadrado() {
 }
 
 void dibujar() {
-	
+	dibujarFondo();
 	dibujarCuadrado();
+	dibujarBolaDesierto();
 	dibujarTriangulo();
 
 	
@@ -201,7 +258,7 @@ int main()
 		glViewport(0, 0, 600, 600);
 		//Establecemos el color de borrado
 		//Valores RGBA
-		glClearColor(1, 0.8, 0, 1);
+		glClearColor(0.96, 0.3898, 0.1824, 1);
 		//Borrar!
 		glClear(GL_COLOR_BUFFER_BIT | 
 			GL_DEPTH_BUFFER_BIT);
