@@ -18,12 +18,13 @@ using namespace std;
 //Declarar una ventana
 
 GLFWwindow* window;
+float posXEstepicursor = -2.0f; 
+float posXNubeFrente = -0.2f;
+float posXNubeFondo = -0.5;
 
-float posXEstepicursor = -2.0f;
+float posXTriangulo = 0.5f , posYTriangulo = -0.5f;
 
-float posXTriangulo = 0.0f , posYTriangulo = 0.0f;
-
-float posXCuadrado = 0.5f, posYCuadrado = 0.5f;
+float posXCuadrado = -0.5f, posYCuadrado = 0.0f;
 
 double tiempoActual, tiempoAnterior;
 double velocidadTriangulo = 0.8;
@@ -64,6 +65,9 @@ void teclado_callback(GLFWwindow* window,
 }
 
 void dibujarFondo() {
+
+	
+
 	//piso
 	glBegin(GL_QUADS);
 
@@ -75,36 +79,148 @@ void dibujarFondo() {
 	glVertex3f(-1.0f, -1.0f, 0.0f);
 
 	glEnd();
-	//cactus
+	
+	//Nube Fondo
+
+	glPushMatrix();
+
+	glScalef(.8, 0.6, 0.8);
+	glTranslatef(posXNubeFondo, 0.6, 0.0);
+
 	glBegin(GL_POLYGON);
+	glColor3f(1.0f, 0.8f, 0.8f);
+	for (double i = 1; i < 360; i += 5.0)
+	{
+		glVertex3f((0.2 * cos(i * 3.1416 / 180.0)), (0.1 * sin(i * 3.1416 / 180.0)), 0.0f);
+	}
+
+	glEnd();
+
+	glBegin(GL_POLYGON);
+	for (double i = 1; i < 360; i += 5.0)
+	{
+		glVertex3f((0.15 * cos(i * 3.1416 / 180.0)) - 0.1, (0.15 * sin(i * 3.1416 / 180.0)) + 0.1, 0.0f);
+	}
+
+	glEnd();
+
+	glBegin(GL_POLYGON);
+	for (double i = 1; i < 360; i += 5.0)
+	{
+		glVertex3f((0.12 * cos(i * 3.1416 / 180.0)) - 0.2, (0.12 * sin(i * 3.1416 / 180.0)) + 0.05, 0.0f);
+	}
+
+	glEnd();
+
+	glPopMatrix();
+
+
+	//nubeFrente
+	glPushMatrix();
+
+	glScalef(1.0, 0.8, 0.8);
+	glTranslatef(posXNubeFrente, 0.3, 0.0);
+
+	glBegin(GL_POLYGON);
+	glColor3f(1.0f, 1.0f, 1.0f);
+	for (double i = 1; i < 360; i += 5.0)
+	{
+		glVertex3f((0.2 * cos(i * 3.1416 / 180.0)), (0.1 * sin(i * 3.1416 / 180.0)), 0.0f);
+	}
+
+	glEnd();
+
+	glBegin(GL_POLYGON);
+	glColor3f(1.0f, 1.0f, 1.0f);
+	for (double i = 1; i < 360; i += 5.0)
+	{
+		glVertex3f((0.15 * cos(i * 3.1416 / 180.0)) -0.1, (0.15 * sin(i * 3.1416 / 180.0)) + 0.1, 0.0f);
+	}
+
+	glEnd();
+
+	glBegin(GL_POLYGON);
+	glColor3f(1.0f, 1.0f, 1.0f);
+	for (double i = 1; i < 360; i += 5.0)
+	{
+		glVertex3f((0.12 * cos(i * 3.1416 / 180.0)) - 0.2, (0.12 * sin(i * 3.1416 / 180.0)) +0.05, 0.0f);
+	}
+
+	glEnd();
+	//sombra
+	glBegin(GL_POLYGON);
+	glColor3f(0.69f, 0.577f, 0.3819f);
+	for (double i = 1; i < 360; i += 5.0)
+	{
+		glVertex3f((0.25 * cos(i * 3.1416 / 180.0)) - 0.1, (0.05 * sin(i * 3.1416 / 180.0)) - 0.2, 0.0f);
+	}
+
+	glEnd();
+
+	glPopMatrix();
+
+	
+	//cactusGrande
+	glPushMatrix();
+
+	glTranslatef(0.2f, -0.1f, 0.0f);
+	
+	glBegin(GL_QUADS);
 
 	glColor3f(0.1989, 0.52, 0.026);
 
 	glVertex3f(0.1, 0.0, 0.0);
-	glVertex3f(0.15, 0.0, 0.0);
-	glVertex3f(0.15, 0.2, 0.0);
+	glVertex3f(0.1, 0.27, 0.0);
+	glVertex3f(0.2, 0.29, 0.0);
+	glVertex3f(0.2, 0.0, 0.0);
+	
+	glEnd();
+
+	glBegin(GL_POLYGON);
+
+	glVertex3f(0.2, 0.15, 0.0);
+	glVertex3f(0.3, 0.15, 0.0);
+	glVertex3f(0.3, 0.25, 0.0);
+	glVertex3f(0.25, 0.25, 0.0);
+	glVertex3f(0.25, 0.2, 0.0);
 	glVertex3f(0.2, 0.2, 0.0);
-	glVertex3f(0.2, 0.35, 0.0);
 
 	glEnd();
+
+	glBegin(GL_POLYGON);
+
+	glVertex3f(0.1, 0.05, 0.0);
+	glVertex3f(0.0, 0.05, 0.0);
+	glVertex3f(0.0, 0.15, 0.0);
+	glVertex3f(0.05, 0.15, 0.0);
+	glVertex3f(0.05, 0.1, 0.0);
+	glVertex3f(0.2, 0.1, 0.0);
+
+	glEnd();
+
+	glPopMatrix();
+
 }
 
 void dibujarBolaDesierto() {
 	glPushMatrix();
 
-	glTranslatef(posXEstepicursor, 0.0, 0.0);
+	glTranslatef(posXEstepicursor, -0.2, 0.0);
 
 	glBegin(GL_POLYGON);
 
 	glColor3f(1, 0.89, 0.7);
-	
 	for (double i = 1; i < 360; i += 5.0)
 	{
-		glVertex3f((0.2 * cos(i * 3.1416 / 180.0)), (0.2 * sin(i * 3.1416 / 180.0)), 0.0f);
+		if ( i % 2 == 0 ) {
+			glVertex3f((0.24 * cos(i * 3.1416 / 180.0)), (0.17 * sin(i * 3.1416 / 180.0)), 0.0f);
+		}
+		else {
+			glVertex3f((0.2 * cos(i * 3.1416 / 180.0)), (0.2 * sin(i * 3.1416 / 180.0)), 0.0f);
+		}
 	}
 
 	glEnd();
-
 	glPopMatrix();
 }
 
@@ -136,6 +252,8 @@ void actualizar() {
 	if (tiempoActual >= 2) {
 		posXEstepicursor += 0.0003f;
 	}
+	posXNubeFrente += 0.00001f;
+	posXNubeFondo += 0.000001;
 	
 
 	checarColisiones();
@@ -171,7 +289,7 @@ void dibujarTriangulo() {
 	glPushMatrix();
 
 	glTranslatef(posXTriangulo, posYTriangulo, 0.0f);
-
+	glScalef(1.5, 1.5, 1.5);
 	glBegin(GL_TRIANGLES);
 
 	glColor3f(rojoTriangulo, verdeTriangulo, azulTriangulo);
@@ -187,7 +305,7 @@ void dibujarCuadrado() {
 	glPushMatrix();
 
 	glTranslatef(posXCuadrado, posYCuadrado, 0.0f);
-
+	glScalef(1.5, 1.5, 2.0);
 	glBegin(GL_QUADS);
 
 	glColor3f(0.7, 0.2, 0.5);
