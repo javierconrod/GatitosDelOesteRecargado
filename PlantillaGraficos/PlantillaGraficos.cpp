@@ -12,56 +12,315 @@
 #include <math.h>
 
 #include <iostream>
+#include <time.h>
 
 using namespace std;
 
 //Declarar una ventana
 
 GLFWwindow* window;
-float posXEstepicursor = -2.0f; 
-float posXNubeFrente = -0.2f;
-float posXNubeFondo = -0.5;
+
+bool golpe = false;
+bool golpe1= false;
+bool golpe2 = false;
+
+bool colision = false;
+
+float componenteXGato1 = 0.0, componenteYGato1 = 0.0f, angulo1 = 65.0f;
+float componenteXGato2 = 0.0, componenteYGato2 = 0.0f, angulo2 = 65.0f;
+
+float randomNumber;
+
+float escalaSenal = 0.0;
+float escalaF = 0.0, posXF = 0.0f, posYF = 0.0f;
+
+
+float posXEstepicursor = -2.0f, velocidadEstepicursor = 0.7;
+float posXNubeFrente = -0.2f, velocidadNubeFrente = 0.13;
+float posXNubeFondo = -0.5, velocidadnubeFondo = 0.02;
 
 float posXTriangulo = 0.5f , posYTriangulo = -0.5f;
+float posXGato2 = 0.5f, posYGato2 = -0.2f;
 
 float posXCuadrado = -0.5f, posYCuadrado = 0.0f;
+float posXGato1 = -0.5f, posYGato1 = 0.2f;
 
 double tiempoActual, tiempoAnterior;
-double velocidadTriangulo = 0.8;
+double velocidadTriangulo = 10;
 
-float rojoTriangulo = 0.2f;
-float verdeTriangulo = 0.6f;
-float azulTriangulo = 0.1f;
+float rojoTriangulo = 0.0f;
+float verdeTriangulo = 1.0f;
+float azulTriangulo = 0.0f;
 
-void teclado_callback(GLFWwindow* window,
-	int key, int scancode, int action, int mods) {
+void dibujarF() {
+	glPushMatrix();
 
-	if (
-		(action == GLFW_PRESS || action == GLFW_REPEAT) 
-		&& key == GLFW_KEY_RIGHT) {
-		posXTriangulo += 0.01;
+	glTranslatef(posXF, posYF, 0.0f);
+	glScalef(escalaF, escalaF, escalaF);
+
+	glBegin(GL_QUADS);
+
+	glColor3f(1.0f, 0.0f, 0.0f);
+
+	glVertex3f(0.0f, 0.0f, 0.0f);
+	glVertex3f(0.0f, 0.4f, 0.0f);
+	glVertex3f(0.1f, 0.4f, 0.0f);
+	glVertex3f(0.1f, 0.0f, 0.0f);
+
+	glVertex3f(0.0f, 0.4f, 0.0f);
+	glVertex3f(0.3f, 0.4f, 0.0f);
+	glVertex3f(0.3f, 0.3f, 0.0f);
+	glVertex3f(0.0f, 0.3f, 0.0f);
+
+	glVertex3f(0.0f, 0.2f, 0.0f);
+	glVertex3f(0.2f, 0.2f, 0.0f);
+	glVertex3f(0.2f, 0.1f, 0.0f);
+	glVertex3f(0.0f, 0.1f, 0.0f);
+
+	glEnd();
+
+	glPopMatrix();
+}
+
+//gato negro
+void dibujarGato1() {
+
+	glPushMatrix();
+	glTranslatef(posXGato1, posYGato1, 0.0f);
+	glScalef(0.7, 0.7, 0.7);
+	//cintas de atras de la bandana
+	glBegin(GL_POLYGON);
+
+	glColor3f(1.0f, 0.2f, 0.2f);
+	glVertex3f(0.05f, 0.3f, 0.0f);
+	glVertex3f(-0.05f, 0.3f, 0.0f);
+	glVertex3f(-0.35f, 0.05f, 0.0f);
+	glVertex3f(-0.25f, 0.05f, 0.0f);
+	glEnd();
+	glBegin(GL_POLYGON);
+
+	glColor3f(1.0f, 0.2f, 0.2f);
+	glVertex3f(0.05f, 0.3f, 0.0f);
+	glVertex3f(-0.05f, 0.3f, 0.0f);
+	glVertex3f(-0.5f, 0.1f, 0.0f);
+	glVertex3f(-0.4f, 0.1f, 0.0f);
+	glEnd();
+	//forma de la cabeza
+	glBegin(GL_POLYGON);
+
+	glColor3f(0.0f, 0.0f, 0.0f);
+	for (double i = 0; i < 360.0; i += 5.0) {
+		glVertex3f(0.25 /*ancho del circulo*/ * cos(i * 3.14159 / 180.0) + 0.0f /*posicion en x*/,
+			(0.25 /*alto del circulo*/ * sin(i * 3.14159 / 180.0)) + 0.2f /*posicion en y*/, 0.0f);
 	}
 
-	if (
-		(action == GLFW_PRESS || action == GLFW_REPEAT)
-		&& key == GLFW_KEY_LEFT) {
-		posXTriangulo -= 0.01;
+	glEnd();
+	//hombros
+	glBegin(GL_POLYGON);
+
+	glColor3f(0.0f, 0.0f, 0.0f);
+	for (double i = 0; i < 360.0; i += 5.0) {
+		glVertex3f(0.35 /*ancho del circulo*/ * cos(i * 3.14159 / 180.0) + 0.0f /*posicion en x*/,
+			(0.25 /*alto del circulo*/ * sin(i * 3.14159 / 180.0)) + -0.1f /*posicion en y*/, 0.0f);
+	}
+	glEnd();
+	//torso
+	glBegin(GL_POLYGON);
+
+	glColor3f(0.0f, 0.0f, 0.0f);
+	glVertex3f(-0.35f, -0.1f, 0.0f);
+	glVertex3f(0.35f, -0.1f, 0.0f);
+	glVertex3f(0.35f, -0.5f, 0.0f);
+	glVertex3f(-0.35f, -0.5f, 0.0f);
+	glEnd();
+	//cuadro de abajo
+	glBegin(GL_POLYGON);
+
+	glColor3f(0.5f, 0.5f, 0.5f);
+	glVertex3f(-0.4f, -0.5f, 0.0f);
+	glVertex3f(0.4f, -0.5f, 0.0f);
+	glVertex3f(0.4f, -0.7f, 0.0f);
+	glVertex3f(-0.4f, -0.7f, 0.0f);
+	glEnd();
+	//orejas
+	glBegin(GL_POLYGON);
+
+	glColor3f(0.0f, 0.0f, 0.0f);
+	glVertex3f(-0.25f, 0.25f, 0.0f);
+	glVertex3f(0.25f, 0.25f, 0.0f);
+	glVertex3f(0.25f, 0.55f, 0.0f);
+	glEnd();
+	glBegin(GL_POLYGON);
+
+	glColor3f(0.0f, 0.0f, 0.0f);
+	glVertex3f(0.25f, 0.25f, 0.0f);
+	glVertex3f(-0.25f, 0.25f, 0.0f);
+	glVertex3f(-0.25f, 0.55f, 0.0f);
+	glEnd();
+	//frente de la bandana
+	glBegin(GL_POLYGON);
+
+	glColor3f(1.0f, 0.2f, 0.2f);
+	glVertex3f(-0.25f, 0.3f, 0.0f);
+	glVertex3f(0.25f, 0.3f, 0.0f);
+	glVertex3f(0.25f, 0.2f, 0.0f);
+	glVertex3f(-0.25f, 0.2f, 0.0f);
+	glEnd();
+	//numero 1
+	glBegin(GL_LINE_STRIP);
+
+	glColor3f(0.0f, 0.0f, 0.0f);
+	glVertex3f(-0.1f, -0.58f, 0.0f);
+	glVertex3f(0.0f, -0.52f, 0.0f);
+	glVertex3f(0.0f, -0.68f, 0.0f);
+	glVertex3f(-0.1f, -0.68f, 0.0f);
+	glVertex3f(0.1f, -0.68f, 0.0f);
+	glEnd();
+	//hoja de la espada
+	glBegin(GL_POLYGON);
+
+	glColor3f(0.7f, 0.7f, 0.7f);
+	glVertex3f(0.6f, 0.4f, 0.0f);
+	glVertex3f(0.5f, 0.4f, 0.0f);
+	glVertex3f(-0.05f, -0.2f, 0.0f);
+	glVertex3f(0.05f, -0.2f, 0.0f);
+	glEnd();
+	//ojos
+	glBegin(GL_POLYGON);
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glVertex3f(-0.15f, 0.16f, 0.0f);
+	glVertex3f(-0.05f, 0.16f, 0.0f);
+	glVertex3f(-0.05f, 0.14f, 0.0f);
+	glVertex3f(-0.15f, 0.14f, 0.0f);
+	glEnd();
+	glBegin(GL_POLYGON);
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glVertex3f(0.15f, 0.16f, 0.0f);
+	glVertex3f(0.05f, 0.16f, 0.0f);
+	glVertex3f(0.05f, 0.14f, 0.0f);
+	glVertex3f(0.15f, 0.14f, 0.0f);
+	glEnd();
+	//mango de la espada
+	glBegin(GL_POLYGON);
+
+	glColor3f(0.3f, 0.3f, 0.3f);
+	glVertex3f(0.1418f, -0.1f, 0.0f);
+	glVertex3f(0.0418f, -0.1f, 0.0f);
+	glVertex3f(-0.05f, -0.2f, 0.0f);
+	glVertex3f(0.05f, -0.2f, 0.0f);
+	glEnd();
+
+	glPopMatrix();
+}
+//gato blanco
+void dibujarGato2() {
+
+	glPushMatrix();
+
+	glTranslatef(posXGato2, posYGato2, 0.0f);
+	glScalef(0.7, 0.7, 0.7);
+	//filo de la espada
+	glBegin(GL_POLYGON);
+
+	glColor3f(0.7f, 0.7f, 0.7f);
+	glVertex3f(-0.6f, 0.4f, 0.0f);
+	glVertex3f(-0.5f, 0.4f, 0.0f);
+	glVertex3f(0.05f, -0.2f, 0.0f);
+	glVertex3f(-0.05f, -0.2f, 0.0f);
+	glEnd();
+	//forma de la cabeza
+	glBegin(GL_POLYGON);
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+	for (double i = 0; i < 360.0; i += 5.0) {
+		glVertex3f(0.25 /*ancho del circulo*/ * cos(i * 3.14159 / 180.0) + 0.0f /*posicion en x*/,
+			(0.25 /*alto del circulo*/ * sin(i * 3.14159 / 180.0)) + 0.2f /*posicion en y*/, 0.0f);
 	}
 
-	if (
-		(action == GLFW_PRESS || action == GLFW_REPEAT)
-		&& key == GLFW_KEY_UP) {
-		posYTriangulo += 0.01;
+	glEnd();
+	//hombros
+	glBegin(GL_POLYGON);
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+	for (double i = 0; i < 360.0; i += 5.0) {
+		glVertex3f(0.35 /*ancho del circulo*/ * cos(i * 3.14159 / 180.0) + 0.0f /*posicion en x*/,
+			(0.25 /*alto del circulo*/ * sin(i * 3.14159 / 180.0)) + -0.1f /*posicion en y*/, 0.0f);
 	}
+	glEnd();
+	//torso
+	glBegin(GL_POLYGON);
 
-	if (
-		(action == GLFW_PRESS || action == GLFW_REPEAT)
-		&& key == GLFW_KEY_DOWN) {
-		posYTriangulo -= 0.01;
-	}
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glVertex3f(-0.35f, -0.1f, 0.0f);
+	glVertex3f(0.35f, -0.1f, 0.0f);
+	glVertex3f(0.35f, -0.5f, 0.0f);
+	glVertex3f(-0.35f, -0.5f, 0.0f);
+	glEnd();
+	//cuadro de abajo 
+	glBegin(GL_POLYGON);
 
+	glColor3f(0.5f, 0.5f, 0.5f);
+	glVertex3f(-0.4f, -0.5f, 0.0f);
+	glVertex3f(0.4f, -0.5f, 0.0f);
+	glVertex3f(0.4f, -0.7f, 0.0f);
+	glVertex3f(-0.4f, -0.7f, 0.0f);
+	glEnd();
+	//orejas
+	glBegin(GL_POLYGON);
 
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glVertex3f(-0.25f, 0.25f, 0.0f);
+	glVertex3f(0.25f, 0.25f, 0.0f);
+	glVertex3f(0.25f, 0.55f, 0.0f);
+	glEnd();
+	glBegin(GL_POLYGON);
 
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glVertex3f(0.25f, 0.25f, 0.0f);
+	glVertex3f(-0.25f, 0.25f, 0.0f);
+	glVertex3f(-0.25f, 0.55f, 0.0f);
+	glEnd();
+	//bandana alrededor de la cabeza
+	glBegin(GL_POLYGON);
+
+	glColor3f(0.0f, 0.4f, 1.0f);
+	glVertex3f(-0.25f, 0.3f, 0.0f);
+	glVertex3f(0.25f, 0.3f, 0.0f);
+	glVertex3f(0.25f, 0.2f, 0.0f);
+	glVertex3f(-0.25f, 0.2f, 0.0f);
+	glEnd();
+	//listones de atras de la bandana
+	glBegin(GL_POLYGON);
+
+	glColor3f(0.0f, 0.4f, 1.0f);
+	glVertex3f(-0.05f, 0.3f, 0.0f);
+	glVertex3f(0.05f, 0.3f, 0.0f);
+	glVertex3f(0.2f, 0.0f, 0.0f);
+	glVertex3f(0.1f, 0.0f, 0.0f);
+	glEnd();
+	glBegin(GL_POLYGON);
+
+	glColor3f(0.0f, 0.4f, 1.0f);
+	glVertex3f(-0.05f, 0.3f, 0.0f);
+	glVertex3f(0.05f, 0.3f, 0.0f);
+	glVertex3f(0.35f, 0.1f, 0.0f);
+	glVertex3f(0.25f, 0.1f, 0.0f);
+	glEnd();
+	//numero 2
+	glBegin(GL_LINE_STRIP);
+
+	glColor3f(0.0f, 0.0f, 0.0f);
+	glVertex3f(-0.1f, -0.52f, 0.0f);
+	glVertex3f(0.1f, -0.52f, 0.0f);
+	glVertex3f(0.1f, -0.6f, 0.0f);
+	glVertex3f(-0.1f, -0.6f, 0.0f);
+	glVertex3f(-0.1f, -0.68f, 0.0f);
+	glVertex3f(0.1f, -0.68f, 0.0f);
+	glEnd();
+
+	glPopMatrix();
 }
 
 void dibujarFondo() {
@@ -210,9 +469,10 @@ void dibujarBolaDesierto() {
 	glBegin(GL_POLYGON);
 
 	glColor3f(1, 0.89, 0.7);
-	for (double i = 1; i < 360; i += 5.0)
+	for (float i = 1; i < 360; i += 5.0)
 	{
-		if ( i % 2 == 0 ) {
+		int i2 = i;
+		if ( i2%2 == 0 ) {
 			glVertex3f((0.24 * cos(i * 3.1416 / 180.0)), (0.17 * sin(i * 3.1416 / 180.0)), 0.0f);
 		}
 		else {
@@ -226,61 +486,105 @@ void dibujarBolaDesierto() {
 
 void checarColisiones() {
 	if (//La orilla derecha del triangulo es mayor que la orilla izquierda del cuadrado
-		posXTriangulo + 0.15f >= posXCuadrado - 0.15f &&
+		posXGato2 + 0.15f >= posXGato1 - 0.15f &&
 		//orilla izquierda del triangulo es meor que la orilla derecha del cuadrado
-		posXTriangulo - 0.15f <= posXCuadrado + 0.15f &&
+		posXGato2 - 0.15f <= posXGato1 + 0.15f &&
 		//la parte de arriba
-		posYTriangulo + 0.15f >= posYCuadrado - 0.15f &&
+		posYGato2 + 0.15f >= posYGato1 - 0.15f &&
 		//la parte de abajo
-		posYTriangulo - 0.15f <= posYCuadrado + 0.15f) {
-		rojoTriangulo = 0.0f;
-		verdeTriangulo = 0.0f;
-		azulTriangulo = 0.0f;
-	}
-	else {
-		rojoTriangulo = 0.2f;
-		verdeTriangulo = 0.6f;
-		azulTriangulo = 0.1f;
+		posYGato2 - 0.15f <= posYGato1 + 0.15f) {
+		if (golpe2 == true)
+		{
+			posYF = 0.4;
+			posXF = -0.6;
+			rojoTriangulo = 1.0f;
+			verdeTriangulo = 1.0;
+			azulTriangulo = 1.0f;
+		}
+		else
+		{
+			posYF = -0.3;
+			posXF = 0.6;
+			rojoTriangulo = 0.0f;
+			verdeTriangulo = 0.0;
+			azulTriangulo = 0.0f;
+		}
+		escalaF = 1.0f;
+		colision = true;
 	}
 }
+void dibujarSenal()
+{
+	glBegin(GL_POLYGON);
 
+	glColor3f(rojoTriangulo, verdeTriangulo, azulTriangulo);
+	for (double i = 1; i < 360; i += 5.0)
+	{
+		glVertex3f((escalaSenal * cos(i * 3.1416 / 180.0)) + 0.6, (escalaSenal * sin(i * 3.1416 / 180.0)) + 0.5, 0.0f);
+	}
+
+	glEnd();
+}
 void actualizar() {
 	tiempoActual = glfwGetTime();
 
+
+	double tiempoDiferencial = tiempoActual - tiempoAnterior;
 	cout << tiempoActual<<"   ";
 
+	
+	
+	randomNumber -= tiempoDiferencial;
+
+	if (randomNumber <= 0)
+	{
+		escalaSenal = 0.3;
+		int estadoA =
+			glfwGetKey(window, GLFW_KEY_A);
+		if (estadoA == GLFW_PRESS) {
+			if (golpe1 == false && randomNumber <= 0 && golpe == false) {
+				golpe1 = true;
+				golpe = true;
+				
+			}
+		}
+		
+		int estadoL =
+			glfwGetKey(window, GLFW_KEY_L);
+		if (estadoL == GLFW_PRESS) {
+			if (golpe2 == false && randomNumber <= 0 && golpe == false) {
+				golpe2 = true;
+				golpe = true;
+			}
+		}
+
+		if (golpe1 == true && golpe == true) {
+			if (colision == false) {
+				componenteXGato1 = sinf(2 * 3.1415 * (angulo1 / 360.0f));
+				posXGato1 += componenteXGato1 * (velocidadTriangulo * tiempoDiferencial);
+				componenteYGato1 = cosf(2 * 3.1415 * (angulo1 / 360.0f));
+				posYGato1 -= componenteYGato1 * (velocidadTriangulo * tiempoDiferencial);
+			}
+
+
+		}
+		if (golpe2 == true && golpe == true)
+		{
+			if (colision == false) {
+				componenteXGato2 = sinf(2 * 3.1415 * (angulo2 / 360.0f));
+				posXGato2 -= componenteXGato2 * (velocidadTriangulo * tiempoDiferencial);
+				componenteYGato2 = cosf(2 * 3.1415 * (angulo2 / 360.0f));
+				posYGato2 += componenteYGato2 * (velocidadTriangulo * tiempoDiferencial);
+			}
+		}
+		checarColisiones();
+	}
+	
 	if (tiempoActual >= 2) {
-		posXEstepicursor += 0.0003f;
+		posXEstepicursor += velocidadEstepicursor * tiempoDiferencial;
 	}
-	posXNubeFrente += 0.00001f;
-	posXNubeFondo += 0.000001;
-	
-
-	checarColisiones();
-	
-
-	double tiempoDiferencial = 
-		tiempoActual - tiempoAnterior;
-	int estadoDerecha =
-		glfwGetKey(window, GLFW_KEY_RIGHT);
-	if (estadoDerecha == GLFW_PRESS) {
-		posXTriangulo += velocidadTriangulo * tiempoDiferencial;
-	}
-	int estadoArriba =
-		glfwGetKey(window, GLFW_KEY_UP);
-	if (estadoArriba == GLFW_PRESS) {
-		posYTriangulo += velocidadTriangulo * tiempoDiferencial;
-	}
-	int estadoIzquierda =
-		glfwGetKey(window, GLFW_KEY_LEFT);
-	if (estadoIzquierda == GLFW_PRESS) {
-		posXTriangulo -= velocidadTriangulo * tiempoDiferencial;
-	}
-	int estadoAbajo =
-		glfwGetKey(window, GLFW_KEY_DOWN);
-	if (estadoAbajo == GLFW_PRESS) {
-		posYTriangulo -= velocidadTriangulo * tiempoDiferencial;
-	}
+	posXNubeFrente += velocidadNubeFrente * tiempoDiferencial;
+	posXNubeFondo += velocidadnubeFondo * tiempoDiferencial;
 
 	tiempoAnterior = tiempoActual;
 }
@@ -319,11 +623,14 @@ void dibujarCuadrado() {
 	glPopMatrix();
 }
 
+
 void dibujar() {
 	dibujarFondo();
-	dibujarCuadrado();
+	dibujarGato1();
 	dibujarBolaDesierto();
-	dibujarTriangulo();
+	dibujarGato2();
+	dibujarSenal();
+	dibujarF();
 
 	
 }
@@ -331,7 +638,8 @@ void dibujar() {
 int main()
 {
     
-
+	srand(time(NULL));
+	randomNumber = 1 + rand() % (8 - 1);
 	//Si no se pudo iniciar GLFW
 	//Terminamos ejecucion
 	if (!glfwInit()) {
@@ -366,7 +674,6 @@ int main()
 
 	//Establecemos que con cada evento de teclado
 	//se llama a la función teclado_callback
-	//glfwSetKeyCallback(window, teclado_callback);
 
 	tiempoActual = glfwGetTime();
 	tiempoAnterior = tiempoActual;
